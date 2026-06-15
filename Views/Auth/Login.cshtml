@@ -1,0 +1,137 @@
+@{
+    Layout = null;
+    ViewBag.Title = "Acceder";
+    var error = ViewBag.Error as string;
+}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Acceder · BankOs</title>
+    <link rel="icon" href="~/favicon.ico" sizes="any" />
+    <link rel="icon" type="image/png" sizes="32x32" href="~/img/favicon-32.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Sora:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <style>
+        body { background: var(--s-100); }
+        .auth { min-height: 100vh; display: grid; grid-template-columns: 1.05fr .95fr; }
+
+        /* ── left brand panel ── */
+        .auth-art { position: relative; overflow: hidden; background: linear-gradient(150deg, var(--navy-ink) 0%, var(--navy) 45%, var(--indigo) 100%); color: #fff; padding: 56px; display: flex; flex-direction: column; }
+        .auth-art::before { content: ''; position: absolute; inset: 0;
+            background: radial-gradient(680px 380px at 88% 6%, rgba(124,18,253,.45), transparent 58%),
+                        radial-gradient(620px 420px at 4% 92%, rgba(0,168,232,.32), transparent 58%),
+                        radial-gradient(520px 360px at 70% 100%, rgba(34,197,94,.22), transparent 60%); }
+        .auth-art::after { content: ''; position: absolute; left: 0; right: 0; top: 0; height: 5px; background: var(--rail); }
+        .auth-art > * { position: relative; z-index: 1; }
+        .auth-brand { display: flex; align-items: center; gap: 13px; }
+        .auth-brand img { height: 46px; width: 46px; object-fit: contain; filter: drop-shadow(0 6px 16px rgba(0,0,0,.4)); }
+        .auth-brand .wm { font-family: var(--display); font-weight: 800; font-size: 27px; letter-spacing: -.5px; color: #fff; }
+        .auth-brand .wm .o { color: #c4b5ff; } .auth-brand .wm .s { color: #86efac; }
+
+        .auth-hero { margin-top: auto; }
+        .auth-hero h1 { font-family: var(--display); font-weight: 800; font-size: 40px; line-height: 1.1; letter-spacing: -1px; }
+        .auth-hero h1 .grad { background: linear-gradient(90deg,#c4b5ff,#7cc7ff 50%,#86efac); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+        .auth-hero p { margin-top: 18px; font-size: 16px; line-height: 1.6; color: rgba(255,255,255,.74); max-width: 440px; }
+        .auth-points { margin-top: 32px; display: flex; flex-direction: column; gap: 14px; }
+        .auth-points .pt { display: flex; align-items: center; gap: 13px; font-size: 14.5px; color: rgba(255,255,255,.9); }
+        .auth-points .pt .ic { width: 36px; height: 36px; border-radius: 11px; background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.16); display: grid; place-items: center; font-size: 15px; }
+        .auth-foot { margin-top: 44px; font-size: 13px; color: rgba(255,255,255,.5); display: flex; align-items: center; gap: 8px; }
+
+        /* ── right form panel ── */
+        .auth-form-wrap { display: flex; align-items: center; justify-content: center; padding: 40px; }
+        .auth-form { width: 100%; max-width: 410px; }
+        .auth-back { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; color: var(--s-500); text-decoration: none; margin-bottom: 34px; }
+        .auth-back:hover { color: var(--purple); }
+        .auth-form h2 { font-family: var(--display); font-weight: 800; font-size: 28px; color: var(--ink); letter-spacing: -.5px; }
+        .auth-form .lead { font-size: 14.5px; color: var(--s-500); margin-top: 9px; line-height: 1.55; }
+        .key-field { position: relative; }
+        .key-field .form-input { padding-left: 42px; padding-right: 44px; font-family: var(--mono); letter-spacing: .3px; }
+        .key-field .lock { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--s-400); font-size: 14px; }
+        .key-field .toggle { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--s-400); cursor: pointer; padding: 7px; border-radius: 8px; }
+        .key-field .toggle:hover { color: var(--purple); background: var(--s-100); }
+        .auth-hint { display: flex; gap: 10px; align-items: flex-start; background: var(--info-bg); border: 1px solid var(--info-bd); color: var(--info-tx); border-radius: var(--radius-sm); padding: 12px 14px; font-size: 12.5px; line-height: 1.5; margin-top: 18px; }
+        .auth-hint i { margin-top: 1px; }
+
+        .mobile-brand { display: none; }
+
+        @@media (max-width: 880px) {
+            .auth { grid-template-columns: 1fr; }
+            .auth-art { display: none; }
+            .auth-form-wrap { padding: 32px 22px; }
+            .mobile-brand { display: flex; align-items: center; gap: 11px; margin-bottom: 30px; }
+            .mobile-brand img { height: 40px; width: 40px; object-fit: contain; }
+            .mobile-brand .wm { font-family: var(--display); font-weight: 800; font-size: 23px; color: var(--navy); }
+            .mobile-brand .wm .o { color: var(--purple); } .mobile-brand .wm .s { color: var(--green); }
+        }
+    </style>
+</head>
+<body>
+    <div class="auth">
+        <div class="auth-art">
+            <a class="auth-brand" href="@Url.Action("Index", "Home")">
+                <img src="~/img/logo.png" alt="BankOs" />
+                <span class="wm">Bank<span class="o">O</span><span class="s">s</span></span>
+            </a>
+            <div class="auth-hero">
+                <h1>Crea y administra <span class="grad">bancos en la nube</span>.</h1>
+                <p>Accede al panel SuperAdmin para dar de alta nuevos bancos, configurarlos y supervisarlos — cada uno con su propia base de datos aislada.</p>
+                <div class="auth-points">
+                    <div class="pt"><span class="ic"><i class="fa-solid fa-building-circle-arrow-right"></i></span> Aprovisionamiento instantáneo de tenants</div>
+                    <div class="pt"><span class="ic"><i class="fa-solid fa-database"></i></span> Base de datos dedicada por banco</div>
+                    <div class="pt"><span class="ic"><i class="fa-solid fa-file-shield"></i></span> Certificación del banco en PDF</div>
+                </div>
+            </div>
+            <div class="auth-foot"><i class="fa-solid fa-shield-halved"></i> Acceso restringido a SuperAdmin · Una plataforma. Todos los bancos.</div>
+        </div>
+
+        <div class="auth-form-wrap">
+            <div class="auth-form">
+                <a class="auth-back" href="@Url.Action("Index", "Home")"><i class="fa-solid fa-arrow-left"></i> Volver al inicio</a>
+
+                <div class="mobile-brand">
+                    <img src="~/img/logo.png" alt="BankOs" />
+                    <span class="wm">Bank<span class="o">O</span><span class="s">s</span></span>
+                </div>
+
+                <h2>Acceder al panel</h2>
+                <p class="lead">Ingresa tu <strong>Master API Key</strong> para administrar los bancos de la plataforma.</p>
+
+                @if (!string.IsNullOrEmpty(error))
+                {
+                    <div class="alert alert-error" style="margin-top:20px;">
+                        <i class="fa-solid fa-circle-exclamation"></i><span>@error</span>
+                    </div>
+                }
+
+                <form method="post" action="@Url.Action("Login", "Auth")" style="margin-top:22px;">
+                    @Html.AntiForgeryToken()
+                    <div class="form-group">
+                        <label class="form-label" for="apiKey">Master API Key</label>
+                        <div class="key-field">
+                            <i class="fa-solid fa-key lock"></i>
+                            <input class="form-input" type="password" id="apiKey" name="apiKey"
+                                   placeholder="••••••••••••••••••••••••" autocomplete="off" autofocus required />
+                            <button type="button" class="toggle" aria-label="Mostrar/ocultar clave" onclick="(function(){var i=document.getElementById('apiKey');var ic=document.getElementById('toggleIcon');if(i.type==='password'){i.type='text';ic.className='fa-solid fa-eye-slash';}else{i.type='password';ic.className='fa-solid fa-eye';}})()">
+                                <i class="fa-solid fa-eye" id="toggleIcon"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-brand btn-lg btn-block">
+                        <i class="fa-solid fa-arrow-right-to-bracket"></i> Entrar al panel
+                    </button>
+                </form>
+
+                <div class="auth-hint">
+                    <i class="fa-solid fa-circle-info"></i>
+                    <span>La Master API Key es la llave del SuperAdmin definida en el servidor de BankOs. Se envía de forma segura y se guarda solo en tu sesión.</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

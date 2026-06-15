@@ -1,0 +1,129 @@
+@{
+    var tenantId = ViewBag.TenantId as string ?? "";
+    var tenantName = ViewBag.TenantName as string ?? tenantId;
+    ViewBag.Title = $"Base de datos · {tenantName}";
+}
+
+<main class="main">
+    <div class="page-header">
+        <div>
+            <div class="eyebrow"><a href="@Url.Action("Detail", new { id = tenantId })" style="color:var(--purple);text-decoration:none;">@tenantName</a> · Base de datos</div>
+            <h1 class="page-title"><i class="fa-solid fa-database" style="color:var(--cyan);"></i> Visor de base de datos</h1>
+            <p class="page-subtitle">Lectura de <span class="mono">tenant_@tenantId</span> · solo lectura, máximo 100 registros por tabla.</p>
+        </div>
+        <a class="btn btn-secondary" href="@Url.Action("Detail", new { id = tenantId })"><i class="fa-solid fa-arrow-left"></i> Volver</a>
+    </div>
+
+    <div class="card">
+        <div class="db">
+            <div class="db-side">
+                <div class="section-label"><i class="fa-solid fa-table-list"></i> Tablas</div>
+                <div id="tableList">
+                    <div style="display:flex;align-items:center;gap:9px;color:var(--s-400);font-size:13px;padding:8px 0;">
+                        <span class="spinner"></span> Cargando…
+                    </div>
+                </div>
+            </div>
+            <div class="db-main">
+                <div class="db-bar">
+                    <div style="display:flex;align-items:center;gap:10px;">
+                        <span class="mono" id="currentTable" style="font-size:13px;color:var(--s-700);font-weight:600;">Selecciona una tabla</span>
+                        <span class="chip" id="rowCount" style="display:none;"></span>
+                    </div>
+                    <button class="btn btn-secondary btn-sm" id="refreshBtn" style="display:none;" onclick="loadRows(window.__t)"><i class="fa-solid fa-rotate"></i> Actualizar</button>
+                </div>
+                <div id="rowsArea" style="flex:1;overflow:auto;padding:18px;">
+                    <div class="empty" style="padding:60px 20px;">
+                        <i class="fa-solid fa-table-cells-large" style="font-size:40px;color:var(--s-300);margin-bottom:14px;"></i>
+                        <div class="empty-title" style="font-size:16px;">Explora la base de datos</div>
+                        <div class="empty-text">Elige una tabla de la izquierda para ver sus registros.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+@section Scripts {
+<script>
+    var TENANT = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(tenantId));
+
+    function esc(v) {
+        if (v === null || v === undefined) return '<span style="color:var(--s-400);font-style:italic;">null</span>';
+        return String(v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    }
+
+    async function loadTables() {
+        var list = document.getElementById('tableList');
+        try {
+            var r = await fetch('/api/db/tables?tenantId=' + encodeURIComponent(TENANT));
+            if (r.status === 401) { window.location = '@Url.Action("Login","Auth")'; return; }
+            var data = await r.json();
+            if (data.error) {
+                list.innerHTML = '<div class="alert alert-error" style="font-size:12px;padding:11px;margin:0;"><i class="fa-solid fa-circle-exclamation"></i><span>No se pudo conectar.<br><span class="mono" style="font-size:10px;">' + esc(data.error) + '</span></span></div>';
+                return;
+            }
+            if (!data.tables || data.tables.length === 0) {
+                list.innerHTML = '<div style="color:var(--s-400);font-size:13px;padding:8px 0;">Sin tablas.</div>';
+                return;
+            }
+            list.innerHTML = data.tables.map(function (t) {
+                return '<button class="db-tbtn" data-t="' + esc(t) + '" onclick="selectTable(this)"><i class="fa-solid fa-table"></i> ' + esc(t) + '</button>';
+            }).join('');
+        } catch (e) {
+            list.innerHTML = '<div class="alert alert-error" style="font-size:12px;padding:11px;margin:0;"><i class="fa-solid fa-circle-exclamation"></i><span>Error de red.</span></div>';
+        }
+    }
+
+    function selectTable(btn) {
+        document.querySelectorAll('.db-tbtn').forEach(function (b) { b.classList.remove('active'); });
+        btn.classList.add('active');
+        loadRows(btn.dataset.t);
+    }
+
+    async function loadRows(table) {
+        window.__t = table;
+        document.getElementById('currentTable').textContent = table;
+        document.getElementById('refreshBtn').style.display = 'inline-flex';
+        var area = document.getElementById('rowsArea');
+        var rc = document.getElementById('rowCount');
+        rc.style.display = 'none';
+        area.innerHTML = '<div style="display:flex;align-items:center;gap:10px;color:var(--s-400);padding:24px;"><span class="spinner"></span> Cargando registros…</div>';
+        try {
+            var r = await fetch('/api/db/rows?tenantId=' + encodeURIComponent(TENANT) + '&table=' + encodeURIComponent(table));
+            if (r.status === 401) { window.location = '@Url.Action("Login","Auth")'; return; }
+            var data = await r.json();
+            if (data.error) {
+                area.innerHTML = '<div class="alert alert-error" style="margin:0;"><i class="fa-solid fa-circle-exclamation"></i><span>' + esc(data.error) + '</span></div>';
+                return;
+            }
+            rc.style.display = 'inline-flex';
+            rc.innerHTML = '<i class="fa-solid fa-list-ol"></i> ' + data.total.toLocaleString('es-CO') + ' registros' + (data.total > data.rows.length ? ' · mostrando ' + data.rows.length : '');
+            if (!data.rows || data.rows.length === 0) {
+                area.innerHTML = '<div class="empty" style="padding:50px 20px;"><i class="fa-regular fa-folder-open" style="font-size:36px;color:var(--s-300);margin-bottom:12px;"></i><div class="empty-title" style="font-size:16px;">Tabla vacía</div><div class="empty-text">Esta tabla no tiene registros.</div></div>';
+                return;
+            }
+            var cols = data.columns;
+            var html = '<div class="table-wrap"><table class="data"><thead><tr>';
+            cols.forEach(function (c) { html += '<th>' + esc(c) + '</th>'; });
+            html += '</tr></thead><tbody>';
+            data.rows.forEach(function (row) {
+                html += '<tr>';
+                cols.forEach(function (c) {
+                    var v = row[c];
+                    var disp = esc(v);
+                    if (typeof v === 'string' && v.length > 80) disp = esc(v.slice(0, 80)) + '…';
+                    html += '<td class="mono" style="font-size:12px;white-space:nowrap;">' + disp + '</td>';
+                });
+                html += '</tr>';
+            });
+            html += '</tbody></table></div>';
+            area.innerHTML = html;
+        } catch (e) {
+            area.innerHTML = '<div class="alert alert-error" style="margin:0;"><i class="fa-solid fa-circle-exclamation"></i><span>Error de red al consultar la tabla.</span></div>';
+        }
+    }
+
+    loadTables();
+</script>
+}

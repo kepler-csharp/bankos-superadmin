@@ -1,0 +1,176 @@
+@{
+    ViewBag.Title = "Asistente";
+}
+
+@section Head {
+<style>
+    .chat-wrap { display: grid; grid-template-columns: 1fr 320px; gap: 24px; align-items: start; }
+    .chat-card { display: flex; flex-direction: column; overflow: hidden; }
+    .chat-head { display: flex; align-items: center; gap: 12px; padding: 16px 20px; border-bottom: 1px solid var(--s-100); }
+    .chat-head .ava { width: 40px; height: 40px; border-radius: 12px; background: var(--rail); display: grid; place-items: center; color: #fff; font-size: 17px; }
+    .chat-head .t { font-family: var(--display); font-weight: 700; font-size: 15px; color: var(--ink); }
+    .chat-head .d { font-size: 12px; color: var(--s-400); margin-top: 1px; }
+    .chat-head .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); box-shadow: 0 0 0 4px rgba(34,197,94,.15); }
+    .ex-q { display: block; width: 100%; text-align: left; border: 1px solid var(--s-200); background: #fff; border-radius: 10px; padding: 11px 13px; font-size: 12.5px; color: var(--s-600); cursor: pointer; transition: all .15s; margin-bottom: 9px; line-height: 1.4; }
+    .ex-q:hover { border-color: var(--purple); color: var(--purple); background: var(--rail-soft-bg, #faf7ff); }
+    .cap { display: flex; gap: 10px; align-items: flex-start; font-size: 12.5px; color: var(--s-600); margin-bottom: 12px; line-height: 1.45; }
+    .cap i { color: var(--green); margin-top: 2px; }
+    @@media (max-width: 920px) { .chat-wrap { grid-template-columns: 1fr; } }
+</style>
+}
+
+<main class="main">
+    <div class="page-header">
+        <div>
+            <div class="eyebrow">Panel SuperAdmin</div>
+            <h1 class="page-title"><i class="fa-solid fa-robot" style="color:var(--purple);"></i> Asistente</h1>
+            <p class="page-subtitle">Pregunta en lenguaje natural sobre los bancos (tenants) del sistema.</p>
+        </div>
+        <button class="btn btn-secondary" type="button" onclick="clearChat()"><i class="fa-solid fa-rotate-left"></i> Reiniciar</button>
+    </div>
+
+    <div class="chat-wrap">
+        <div class="card chat-card">
+            <div class="chat-head">
+                <div class="ava"><i class="fa-solid fa-robot"></i></div>
+                <div style="flex:1;">
+                    <div class="t">Asistente BankOs</div>
+                    <div class="d">Especializado en los tenants del sistema</div>
+                </div>
+                <span class="dot" title="En línea"></span>
+            </div>
+
+            <div id="msgs" class="chat-msgs"></div>
+
+            <div class="chat-input-row">
+                <input id="inp" class="chat-input" type="text" placeholder="Escribe tu pregunta…" autocomplete="off"
+                       onkeydown="if(event.key==='Enter'){event.preventDefault();send();}" />
+                <button id="sendBtn" class="btn btn-brand" type="button" onclick="send()">
+                    <i class="fa-solid fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
+
+        <aside>
+            <div class="card" style="margin-bottom:18px;">
+                <div class="sec-head" style="display:flex;align-items:center;gap:11px;padding:15px 20px;border-bottom:1px solid var(--s-100);">
+                    <span style="width:30px;height:30px;border-radius:9px;background:var(--purple);display:grid;place-items:center;color:#fff;font-size:13px;"><i class="fa-solid fa-lightbulb"></i></span>
+                    <span style="font-family:var(--display);font-weight:700;font-size:14px;color:var(--ink);">Preguntas de ejemplo</span>
+                </div>
+                <div class="card-body">
+                    <button class="ex-q" type="button" onclick="ask(this.innerText)">¿Cuántos bancos hay registrados y cuántos están activos?</button>
+                    <button class="ex-q" type="button" onclick="ask(this.innerText)">¿Qué bancos están inactivos?</button>
+                    <button class="ex-q" type="button" onclick="ask(this.innerText)">¿Qué monedas se utilizan en la plataforma?</button>
+                    <button class="ex-q" type="button" onclick="ask(this.innerText)">Compara las comisiones de transferencia de los bancos.</button>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="sec-head" style="display:flex;align-items:center;gap:11px;padding:15px 20px;border-bottom:1px solid var(--s-100);">
+                    <span style="width:30px;height:30px;border-radius:9px;background:var(--green);display:grid;place-items:center;color:#fff;font-size:13px;"><i class="fa-solid fa-circle-check"></i></span>
+                    <span style="font-family:var(--display);font-weight:700;font-size:14px;color:var(--ink);">Qué puede hacer</span>
+                </div>
+                <div class="card-body">
+                    <div class="cap"><i class="fa-solid fa-check"></i><span>Listar y filtrar bancos por estado, moneda o configuración.</span></div>
+                    <div class="cap"><i class="fa-solid fa-check"></i><span>Resumir comisiones, límites y tasas de cambio.</span></div>
+                    <div class="cap"><i class="fa-solid fa-check"></i><span>Comparar varios bancos entre sí.</span></div>
+                    <div class="cap" style="margin-bottom:0;"><i class="fa-solid fa-circle-info" style="color:var(--blue);"></i><span>Solo responde preguntas sobre los tenants del sistema.</span></div>
+                </div>
+            </div>
+        </aside>
+    </div>
+</main>
+
+@section Scripts {
+<script>
+    const WELCOME = "¡Hola! Soy el asistente de BankOs. Puedo responder preguntas sobre los tenants (bancos) registrados en el sistema: estados, configuración, monedas, comisiones y comparaciones. ¿En qué te ayudo?";
+    let history = [];
+    let busy = false;
+
+    const msgsEl = document.getElementById('msgs');
+    const inpEl = document.getElementById('inp');
+    const sendBtn = document.getElementById('sendBtn');
+
+    function esc(s) {
+        return (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+
+    function scrollDown() { msgsEl.scrollTop = msgsEl.scrollHeight; }
+
+    function addUser(text) {
+        const d = document.createElement('div');
+        d.className = 'msg msg-user';
+        d.innerHTML = esc(text);
+        msgsEl.appendChild(d);
+        scrollDown();
+    }
+
+    function addBot(text) {
+        const d = document.createElement('div');
+        d.className = 'msg msg-bot';
+        d.innerHTML = '<div class="who"><span class="ava"><i class="fa-solid fa-robot"></i></span><span>Asistente</span></div>' +
+                      '<div>' + esc(text).replace(/\n/g, '<br>') + '</div>';
+        msgsEl.appendChild(d);
+        scrollDown();
+    }
+
+    function addTyping() {
+        const d = document.createElement('div');
+        d.className = 'msg msg-bot';
+        d.id = 'typing';
+        d.innerHTML = '<div class="who"><span class="ava"><i class="fa-solid fa-robot"></i></span><span>Asistente</span></div>' +
+                      '<div class="typing"><span></span><span></span><span></span></div>';
+        msgsEl.appendChild(d);
+        scrollDown();
+    }
+    function removeTyping() { const t = document.getElementById('typing'); if (t) t.remove(); }
+
+    function clearChat() {
+        history = [];
+        msgsEl.innerHTML = '';
+        addBot(WELCOME);
+    }
+
+    function ask(text) {
+        if (busy) return;
+        inpEl.value = text;
+        send();
+    }
+
+    async function send() {
+        const text = inpEl.value.trim();
+        if (!text || busy) return;
+
+        busy = true;
+        sendBtn.disabled = true;
+        inpEl.value = '';
+        addUser(text);
+        history.push({ role: 'user', content: text });
+        addTyping();
+
+        try {
+            const resp = await fetch('@Url.Action("ChatSend", "Dashboard")', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: text, history: history.slice(-10) })
+            });
+            const data = await resp.json();
+            removeTyping();
+            const reply = data.reply || 'No pude obtener una respuesta.';
+            addBot(reply);
+            history.push({ role: 'assistant', content: reply });
+        } catch (e) {
+            removeTyping();
+            addBot('Ocurrió un error de conexión con el asistente. Inténtalo de nuevo.');
+        } finally {
+            busy = false;
+            sendBtn.disabled = false;
+            inpEl.focus();
+        }
+    }
+
+    // init
+    addBot(WELCOME);
+    inpEl.focus();
+</script>
+}

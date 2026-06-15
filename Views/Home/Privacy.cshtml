@@ -1,0 +1,131 @@
+@{
+    ViewBag.Title = "Política de privacidad";
+    var updated = new DateTime(2026, 1, 1);
+}
+
+@section Head {
+<style>
+    .doc-bar { position: sticky; top: 0; z-index: 50; background: rgba(255,255,255,.85); backdrop-filter: blur(12px); border-bottom: 1px solid var(--s-200); }
+    .doc-bar-in { max-width: 920px; margin: 0 auto; padding: 14px 24px; display: flex; align-items: center; justify-content: space-between; }
+    .doc-brand { display: flex; align-items: center; gap: 11px; text-decoration: none; }
+    .doc-brand img { height: 34px; width: 34px; object-fit: contain; }
+    .doc-brand .wm { font-size: 19px; color: var(--navy); }
+
+    .doc-hero { background: linear-gradient(150deg, var(--navy) 0%, var(--indigo) 100%); color: #fff; position: relative; overflow: hidden; }
+    .doc-hero::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 4px; background: var(--rail); }
+    .doc-hero::before { content: ''; position: absolute; inset: 0; background: radial-gradient(540px 280px at 88% 0%, rgba(124,18,253,.34), transparent 60%); }
+    .doc-hero-in { position: relative; max-width: 920px; margin: 0 auto; padding: 56px 24px; }
+    .doc-hero h1 { font-family: var(--display); font-weight: 800; font-size: 36px; letter-spacing: -.6px; }
+    .doc-hero p { margin-top: 12px; color: rgba(255,255,255,.72); font-size: 15px; }
+
+    .doc { max-width: 920px; margin: 0 auto; padding: 48px 24px 72px; }
+    .doc .card { padding: 40px 44px; }
+    .doc h2 { font-family: var(--display); font-weight: 700; font-size: 19px; color: var(--ink); margin: 30px 0 12px; display: flex; align-items: center; gap: 10px; }
+    .doc h2:first-child { margin-top: 0; }
+    .doc h2 .n { width: 28px; height: 28px; border-radius: 8px; background: var(--rail-soft); color: #fff; font-size: 13px; font-weight: 800; display: grid; place-items: center; font-family: var(--display); }
+    .doc p, .doc li { font-size: 14.5px; line-height: 1.7; color: var(--s-600); }
+    .doc p { margin-bottom: 10px; }
+    .doc ul { margin: 8px 0 14px 4px; padding-left: 22px; }
+    .doc li { margin-bottom: 6px; }
+    .doc strong { color: var(--s-800); }
+    .doc .meta { font-size: 13px; color: var(--s-400); }
+    .doc-foot { text-align: center; padding: 30px 24px 60px; }
+    @@media (max-width: 560px) { .doc .card { padding: 26px 20px; } .doc-hero h1 { font-size: 27px; } .doc-brand .wm { display:none; } }
+</style>
+}
+
+<header class="doc-bar">
+    <div class="doc-bar-in">
+        <a class="doc-brand" href="@Url.Action("Index", "Home")">
+            <img src="~/img/logo.png" alt="BankOs" />
+            <span class="wordmark wm">Bank<span class="o">O</span><span class="s">s</span></span>
+        </a>
+        <a class="btn btn-secondary" href="@Url.Action("Index", "Home")"><i class="fa-solid fa-arrow-left"></i> Volver</a>
+    </div>
+</header>
+
+<section class="doc-hero">
+    <div class="doc-hero-in">
+        <h1>Política de privacidad</h1>
+        <p>Cómo BankOs trata la información en el panel de administración SuperAdmin.</p>
+    </div>
+</section>
+
+<div class="doc">
+    <div class="card">
+        <p class="meta">Última actualización: @updated.ToString("d 'de' MMMM 'de' yyyy", new System.Globalization.CultureInfo("es-ES"))</p>
+        <p style="margin-top:14px;">
+            Esta política describe cómo el panel SuperAdmin de <strong>BankOs</strong> («la plataforma», «nosotros»)
+            recopila, utiliza y protege la información cuando administras bancos (tenants). Al utilizar el panel
+            aceptas las prácticas aquí descritas.
+        </p>
+
+        <h2><span class="n">1</span> Información que tratamos</h2>
+        <p>El panel trata las siguientes categorías de información:</p>
+        <ul>
+            <li><strong>Credenciales de acceso:</strong> la Master API Key que ingresas se conserva únicamente en tu sesión del navegador para autenticar las operaciones contra la API de BankOs. No se almacena en bases de datos del panel.</li>
+            <li><strong>Datos de los bancos (tenants):</strong> nombre, identificador, moneda, comisiones, límites, webhook y datos del administrador, gestionados a través de la API.</li>
+            <li><strong>Datos del administrador del banco:</strong> nombre y correo electrónico, usados para enviar notificaciones operativas.</li>
+            <li><strong>Información de las bases de datos por banco:</strong> el visor accede en modo <strong>solo lectura</strong> a la base de datos dedicada de cada banco para mostrar tablas y métricas.</li>
+        </ul>
+
+        <h2><span class="n">2</span> Cómo usamos la información</h2>
+        <ul>
+            <li>Autenticar y autorizar las operaciones del SuperAdmin.</li>
+            <li>Crear, configurar, activar/desactivar y eliminar bancos.</li>
+            <li>Enviar correos transaccionales (bienvenida, cambios de configuración, cambios de estado y baja del banco).</li>
+            <li>Mostrar estadísticas y permitir la consulta de la base de datos de cada banco.</li>
+            <li>Generar el certificado del banco en formato PDF dentro del propio panel.</li>
+        </ul>
+
+        <h2><span class="n">3</span> Asistente con inteligencia artificial</h2>
+        <p>
+            El asistente del panel envía a un proveedor de modelos de lenguaje un resumen de los bancos
+            (identificador, nombre, estado, moneda, comisiones y límites) y tu pregunta, con el único fin de
+            responder consultas sobre la administración de los tenants. No se envían credenciales ni contenido
+            de las bases de datos de los bancos.
+        </p>
+
+        <h2><span class="n">4</span> Correo electrónico</h2>
+        <p>
+            Las notificaciones se envían al correo del administrador del banco a través del servidor SMTP
+            configurado. El envío de correos puede desactivarse en la configuración del panel.
+        </p>
+
+        <h2><span class="n">5</span> Conservación y seguridad</h2>
+        <ul>
+            <li>La Master API Key vive solo durante tu sesión y se elimina al cerrarla.</li>
+            <li>El acceso a las bases de datos de los bancos es de solo lectura desde el panel.</li>
+            <li>Aplicamos medidas razonables para proteger la información; ningún sistema es 100% infalible.</li>
+        </ul>
+
+        <h2><span class="n">6</span> Terceros</h2>
+        <p>
+            La plataforma se apoya en servicios de terceros para funcionar: la API de BankOs, el proveedor de correo
+            SMTP y el proveedor del asistente de IA. Cada uno trata la información conforme a sus propias condiciones.
+        </p>
+
+        <h2><span class="n">7</span> Tus responsabilidades</h2>
+        <p>
+            Como SuperAdmin eres responsable de custodiar la Master API Key, de gestionar los datos de los bancos
+            conforme a la normativa aplicable y de obtener el consentimiento necesario de los administradores cuyos
+            correos registres.
+        </p>
+
+        <h2><span class="n">8</span> Cambios en esta política</h2>
+        <p>
+            Podemos actualizar esta política para reflejar cambios en la plataforma. Publicaremos la versión vigente
+            en esta misma página, indicando la fecha de última actualización.
+        </p>
+
+        <h2><span class="n">9</span> Contacto</h2>
+        <p>
+            Si tienes preguntas sobre esta política o sobre el tratamiento de la información, contacta al
+            equipo responsable de tu instalación de BankOs.
+        </p>
+    </div>
+</div>
+
+<div class="doc-foot">
+    <a class="btn btn-brand" href="@Url.Action("Login", "Auth")"><i class="fa-solid fa-arrow-right-to-bracket"></i> Acceder al panel</a>
+</div>

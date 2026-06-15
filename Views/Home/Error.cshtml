@@ -1,0 +1,36 @@
+@{
+    ViewBag.Title = "Algo salió mal";
+    var reqId = ViewBag.RequestId as string;
+}
+
+@section Head {
+<style>
+    .err-wrap { min-height: 100vh; display: grid; place-items: center; padding: 32px; position: relative; overflow: hidden; }
+    .err-wrap::before { content: ''; position: absolute; inset: 0;
+        background: radial-gradient(640px 360px at 80% 0%, rgba(124,18,253,.10), transparent 60%),
+                    radial-gradient(560px 320px at 8% 100%, rgba(4,99,253,.10), transparent 60%); }
+    .err-card { position: relative; text-align: center; max-width: 460px; }
+    .err-card img { height: 56px; width: 56px; object-fit: contain; margin-bottom: 22px; }
+    .err-badge { width: 76px; height: 76px; border-radius: 22px; background: var(--rail); display: grid; place-items: center; color: #fff; font-size: 32px; margin: 0 auto 24px; box-shadow: 0 16px 40px rgba(68,30,180,.3); }
+    .err-card h1 { font-family: var(--display); font-weight: 800; font-size: 28px; color: var(--ink); letter-spacing: -.5px; }
+    .err-card p { color: var(--s-500); font-size: 15px; margin-top: 12px; line-height: 1.6; }
+    .err-req { font-family: var(--mono); font-size: 11.5px; color: var(--s-400); margin-top: 18px; }
+    .err-actions { display: flex; gap: 12px; justify-content: center; margin-top: 28px; flex-wrap: wrap; }
+</style>
+}
+
+<div class="err-wrap">
+    <div class="err-card">
+        <div class="err-badge"><i class="fa-solid fa-triangle-exclamation"></i></div>
+        <h1>Algo salió mal</h1>
+        <p>Ocurrió un error inesperado al procesar tu solicitud. Puedes volver al inicio o intentar acceder al panel de nuevo.</p>
+        @if (!string.IsNullOrEmpty(reqId))
+        {
+            <div class="err-req">ID de solicitud: @reqId</div>
+        }
+        <div class="err-actions">
+            <a class="btn btn-secondary" href="@Url.Action("Index", "Home")"><i class="fa-solid fa-house"></i> Inicio</a>
+            <a class="btn btn-brand" href="@Url.Action("Index", "Dashboard")"><i class="fa-solid fa-gauge-high"></i> Ir al panel</a>
+        </div>
+    </div>
+</div>

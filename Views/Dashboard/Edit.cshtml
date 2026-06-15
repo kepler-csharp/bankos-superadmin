@@ -1,0 +1,145 @@
+@model EditTenantViewModel
+@{
+    ViewBag.Title = $"Editar · {Model.Name}";
+    var error = ViewBag.Error as string;
+}
+
+@section Head {
+<style>
+    .fl { display: grid; grid-template-columns: 1fr 320px; gap: 24px; align-items: start; }
+    .fl-aside { position: sticky; top: 86px; }
+    .sec-head { display: flex; align-items: center; gap: 11px; padding: 16px 22px; border-bottom: 1px solid var(--s-100); }
+    .sec-head .ic { width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center; color: #fff; font-size: 14px; }
+    .sec-head .t { font-family: var(--display); font-weight: 700; font-size: 15px; color: var(--ink); }
+    .sec-head .d { font-size: 12px; color: var(--s-400); margin-top: 1px; }
+    .ro { background: var(--s-50); border: 1px solid var(--s-200); border-radius: 10px; padding: 11px 14px; font-family: var(--mono); font-size: 13px; color: var(--s-500); }
+    @@media (max-width: 920px) { .fl { grid-template-columns: 1fr; } .fl-aside { position: static; } }
+</style>
+}
+
+<main class="main">
+    <div class="page-header">
+        <div>
+            <div class="eyebrow">Bancos · Editar</div>
+            <h1 class="page-title"><i class="fa-solid fa-pen-to-square" style="color:var(--purple);"></i> @Model.Name</h1>
+            <p class="page-subtitle">Actualiza la configuración del banco <span class="mono">tenant_@Model.Id</span>.</p>
+        </div>
+        <a class="btn btn-secondary" href="@Url.Action("Detail", new { id = Model.Id })"><i class="fa-solid fa-arrow-left"></i> Volver</a>
+    </div>
+
+    @if (!string.IsNullOrEmpty(error))
+    {
+        <div class="alert alert-error"><i class="fa-solid fa-circle-exclamation"></i><span>@error</span></div>
+    }
+
+    <form method="post" action="@Url.Action("Edit")">
+        @Html.AntiForgeryToken()
+        <input type="hidden" asp-for="Id" />
+        <input type="hidden" asp-for="AdminEmail" />
+
+        <div class="fl">
+            <div>
+                <div class="card" style="margin-bottom:20px;">
+                    <div class="sec-head">
+                        <span class="ic" style="background:var(--rail);"><i class="fa-solid fa-id-card"></i></span>
+                        <div><div class="t">Identidad y estado</div><div class="d">El identificador no se puede cambiar</div></div>
+                    </div>
+                    <div class="card-body">
+                        <div class="grid-2">
+                            <div class="form-group">
+                                <label class="form-label">Identificador (slug)</label>
+                                <div class="ro">@Model.Id</div>
+                                <div class="form-hint">Base de datos: <span class="mono">tenant_@Model.Id</span></div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" asp-for="Name">Nombre del banco</label>
+                                <input class="form-input" asp-for="Name" required />
+                            </div>
+                        </div>
+                        <div class="form-group" style="margin-bottom:0;">
+                            <label class="form-label" asp-for="Status">Estado</label>
+                            <select class="form-select" asp-for="Status">
+                                <option value="active" selected="@(Model.Status == "active")">Activo — el banco opera con normalidad</option>
+                                <option value="inactive" selected="@(Model.Status == "inactive")">Inactivo — el banco queda suspendido</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card" style="margin-bottom:20px;">
+                    <div class="sec-head">
+                        <span class="ic" style="background:var(--blue);"><i class="fa-solid fa-coins"></i></span>
+                        <div><div class="t">Configuración financiera</div><div class="d">Moneda, comisiones y límites</div></div>
+                    </div>
+                    <div class="card-body">
+                        <div class="grid-3">
+                            <div class="form-group">
+                                <label class="form-label" asp-for="Currency">Moneda</label>
+                                <select class="form-select" asp-for="Currency">
+                                    <option value="COP" selected="@(Model.Currency == "COP")">COP — Peso colombiano</option>
+                                    <option value="USD" selected="@(Model.Currency == "USD")">USD — Dólar</option>
+                                    <option value="EUR" selected="@(Model.Currency == "EUR")">EUR — Euro</option>
+                                    <option value="GBP" selected="@(Model.Currency == "GBP")">GBP — Libra</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" asp-for="TransferFeeType">Tipo de comisión</label>
+                                <select class="form-select" asp-for="TransferFeeType">
+                                    <option value="percentage" selected="@(Model.TransferFeeType == "percentage")">Porcentaje (%)</option>
+                                    <option value="fixed" selected="@(Model.TransferFeeType == "fixed")">Monto fijo</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" asp-for="TransferFeeValue">Valor de la comisión</label>
+                                <input class="form-input" type="number" step="0.01" min="0" asp-for="TransferFeeValue" />
+                            </div>
+                        </div>
+                        <div class="form-group" style="margin-bottom:0;">
+                            <label class="form-label" asp-for="MaxTransactionAmount">Límite por transacción</label>
+                            <input class="form-input" type="number" step="1" min="0" asp-for="MaxTransactionAmount" />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="sec-head">
+                        <span class="ic" style="background:var(--cyan);"><i class="fa-solid fa-link"></i></span>
+                        <div><div class="t">Integración</div><div class="d">Webhook de eventos</div></div>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group" style="margin-bottom:0;">
+                            <label class="form-label" asp-for="WebhookUrl">Webhook URL <span style="text-transform:none;color:var(--s-400);font-weight:500;">(opcional)</span></label>
+                            <input class="form-input input-mono" asp-for="WebhookUrl" placeholder="https://mi-banco.com/webhooks/bankos" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <aside class="fl-aside">
+                <div class="card">
+                    <div class="sec-head">
+                        <span class="ic" style="background:var(--green);"><i class="fa-solid fa-floppy-disk"></i></span>
+                        <div><div class="t">Guardar cambios</div></div>
+                    </div>
+                    <div class="card-body">
+                        <label class="check" style="margin-bottom:18px;">
+                            <input type="checkbox" asp-for="NotifyByEmail" />
+                            <span>Notificar los cambios al administrador por correo</span>
+                        </label>
+                        <button type="submit" class="btn btn-brand btn-lg btn-block">
+                            <i class="fa-solid fa-check"></i> Guardar cambios
+                        </button>
+                        <a class="btn btn-ghost btn-block" style="margin-top:8px;" href="@Url.Action("Detail", new { id = Model.Id })">Cancelar</a>
+                    </div>
+                </div>
+                @if (!string.IsNullOrWhiteSpace(Model.AdminEmail))
+                {
+                    <div class="alert alert-info" style="margin-top:16px;">
+                        <i class="fa-solid fa-envelope"></i>
+                        <span>Las notificaciones se enviarán a <strong>@Model.AdminEmail</strong>.</span>
+                    </div>
+                }
+            </aside>
+        </div>
+    </form>
+</main>

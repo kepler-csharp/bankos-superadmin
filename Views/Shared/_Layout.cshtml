@@ -1,0 +1,59 @@
+@{
+    var apiKey = Context.Session.GetString("ApiKey");
+    var authed = !string.IsNullOrEmpty(apiKey);
+    var ctrl = (ViewContext.RouteData.Values["controller"] as string) ?? "";
+    var act = (ViewContext.RouteData.Values["action"] as string) ?? "";
+    string Nav(string c, string a) => (string.Equals(ctrl, c, StringComparison.OrdinalIgnoreCase)
+        && string.Equals(act, a, StringComparison.OrdinalIgnoreCase)) ? "active" : "";
+}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@(ViewBag.Title != null ? ViewBag.Title + " · BankOs" : "BankOs · Panel SuperAdmin")</title>
+    <meta name="description" content="BankOs — Una plataforma. Todos los bancos. Panel SuperAdmin para crear y administrar bancos (tenants) en la nube." />
+    <link rel="icon" href="~/favicon.ico" sizes="any" />
+    <link rel="icon" type="image/png" sizes="32x32" href="~/img/favicon-32.png" />
+    <link rel="apple-touch-icon" href="~/img/favicon-180.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Sora:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    @await RenderSectionAsync("Head", required: false)
+</head>
+<body>
+    @if (authed)
+    {
+        <nav class="nav">
+            <div class="nav-inner">
+                <a class="nav-brand" href="@Url.Action("Index", "Dashboard")">
+                    <img src="~/img/logo.png" alt="BankOs" />
+                    <span class="wordmark name">Bank<span class="o">O</span><span class="s">s</span></span>
+                    <span class="nav-badge">SUPER ADMIN</span>
+                </a>
+                <div class="nav-links">
+                    <a class="nav-link @Nav("Dashboard","Index")" href="@Url.Action("Index", "Dashboard")">
+                        <i class="fa-solid fa-building-columns"></i><span class="txt">Bancos</span>
+                    </a>
+                    <a class="nav-link @Nav("Dashboard","Create")" href="@Url.Action("Create", "Dashboard")">
+                        <i class="fa-solid fa-plus"></i><span class="txt">Crear banco</span>
+                    </a>
+                    <a class="nav-link @Nav("Dashboard","Chat")" href="@Url.Action("Chat", "Dashboard")">
+                        <i class="fa-solid fa-robot"></i><span class="txt">Asistente</span>
+                    </a>
+                    <span class="nav-div"></span>
+                    <a class="nav-link danger" href="@Url.Action("Logout", "Auth")">
+                        <i class="fa-solid fa-arrow-right-from-bracket"></i><span class="txt">Salir</span>
+                    </a>
+                </div>
+            </div>
+        </nav>
+    }
+
+    @RenderBody()
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

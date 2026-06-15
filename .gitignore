@@ -1,0 +1,22 @@
+## .NET build output
+bin/
+obj/
+out/
+
+## User-specific / IDE
+.vs/
+.vscode/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+## Rider
+.idea/
+
+## Logs / local
+*.log
+appsettings.*.local.json
+
+appsettings.json
+

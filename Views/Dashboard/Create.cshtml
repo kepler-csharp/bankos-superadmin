@@ -1,0 +1,225 @@
+@model CreateTenantViewModel
+@{
+    ViewBag.Title = "Crear banco";
+    var error = ViewBag.Error as string;
+}
+
+@section Head {
+<style>
+    .fl { display: grid; grid-template-columns: 1fr 340px; gap: 24px; align-items: start; }
+    .fl-aside { position: sticky; top: 86px; }
+    .sec-card { margin-bottom: 20px; }
+    .sec-head { display: flex; align-items: center; gap: 11px; padding: 16px 22px; border-bottom: 1px solid var(--s-100); }
+    .sec-head .ic { width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center; color: #fff; font-size: 14px; }
+    .sec-head .t { font-family: var(--display); font-weight: 700; font-size: 15px; color: var(--ink); }
+    .sec-head .d { font-size: 12px; color: var(--s-400); margin-top: 1px; }
+    .sum-row { display: flex; align-items: center; justify-content: space-between; padding: 9px 0; font-size: 13px; border-top: 1px dashed var(--s-200); }
+    .sum-row:first-child { border-top: none; }
+    .sum-row .k { color: var(--s-500); } .sum-row .v { font-weight: 700; color: var(--s-800); text-align: right; }
+    @@media (max-width: 920px) { .fl { grid-template-columns: 1fr; } .fl-aside { position: static; } }
+</style>
+}
+
+<main class="main">
+    <div class="page-header">
+        <div>
+            <div class="eyebrow">Bancos · Nuevo</div>
+            <h1 class="page-title"><i class="fa-solid fa-building-circle-arrow-right" style="color:var(--purple);"></i> Crear banco</h1>
+            <p class="page-subtitle">Da de alta un nuevo banco (tenant) con su propia base de datos aislada.</p>
+        </div>
+        <a class="btn btn-secondary" href="@Url.Action("Index")"><i class="fa-solid fa-arrow-left"></i> Volver</a>
+    </div>
+
+    @if (!string.IsNullOrEmpty(error))
+    {
+        <div class="alert alert-error"><i class="fa-solid fa-circle-exclamation"></i><span>@error</span></div>
+    }
+
+    <form method="post" action="@Url.Action("Create")" id="createForm">
+        @Html.AntiForgeryToken()
+        <div class="fl">
+            <div>
+                <!-- Identidad -->
+                <div class="card sec-card">
+                    <div class="sec-head">
+                        <span class="ic" style="background:var(--rail);"><i class="fa-solid fa-id-card"></i></span>
+                        <div><div class="t">Identidad del banco</div><div class="d">Nombre e identificador único</div></div>
+                    </div>
+                    <div class="card-body">
+                        <div class="grid-2">
+                            <div class="form-group">
+                                <label class="form-label" asp-for="Name">Nombre del banco</label>
+                                <input class="form-input" asp-for="Name" id="f-name" placeholder="Banco de los Andes" required />
+                                <div class="form-hint">Nombre comercial que verá el administrador.</div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" asp-for="Id">Identificador (slug)</label>
+                                <input class="form-input input-mono" asp-for="Id" id="f-id" placeholder="banco-andes" pattern="[a-z0-9\-]+" required />
+                                <div class="form-hint">Solo minúsculas, números y guiones. Base de datos: <span class="mono" id="db-preview">tenant_…</span></div>
+                            </div>
+                        </div>
+                        <div class="form-group" style="margin-bottom:0;">
+                            <label class="form-label" asp-for="WebhookUrl">Webhook URL <span style="text-transform:none;color:var(--s-400);font-weight:500;">(opcional)</span></label>
+                            <input class="form-input input-mono" asp-for="WebhookUrl" placeholder="https://mi-banco.com/webhooks/bankos" />
+                            <div class="form-hint">Endpoint para notificaciones de eventos del banco.</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Configuración financiera -->
+                <div class="card sec-card">
+                    <div class="sec-head">
+                        <span class="ic" style="background:var(--blue);"><i class="fa-solid fa-coins"></i></span>
+                        <div><div class="t">Configuración financiera</div><div class="d">Moneda, comisiones y límites</div></div>
+                    </div>
+                    <div class="card-body">
+                        <div class="grid-3">
+                            <div class="form-group">
+                                <label class="form-label" asp-for="Currency">Moneda</label>
+                                <select class="form-select" asp-for="Currency" id="f-currency">
+                                    <option value="COP" selected="@(Model.Currency == "COP")">COP — Peso colombiano</option>
+                                    <option value="USD" selected="@(Model.Currency == "USD")">USD — Dólar</option>
+                                    <option value="EUR" selected="@(Model.Currency == "EUR")">EUR — Euro</option>
+                                    <option value="GBP" selected="@(Model.Currency == "GBP")">GBP — Libra</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" asp-for="TransferFeeType">Tipo de comisión</label>
+                                <select class="form-select" asp-for="TransferFeeType" id="f-feetype">
+                                    <option value="percentage" selected="@(Model.TransferFeeType == "percentage")">Porcentaje (%)</option>
+                                    <option value="fixed" selected="@(Model.TransferFeeType == "fixed")">Monto fijo</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" asp-for="TransferFeeValue">Valor de la comisión</label>
+                                <input class="form-input" type="number" step="0.01" min="0" asp-for="TransferFeeValue" id="f-feeval" />
+                            </div>
+                        </div>
+                        <div class="form-group" style="margin-bottom:18px;">
+                            <label class="form-label" asp-for="MaxTransactionAmount">Límite por transacción</label>
+                            <input class="form-input" type="number" step="1" min="0" asp-for="MaxTransactionAmount" id="f-max" />
+                            <div class="form-hint">Monto máximo permitido por transacción.</div>
+                        </div>
+
+                        <div class="section-label" style="margin:6px 0 10px;">Tasas de cambio (frente a la moneda base)</div>
+                        <div class="grid-3">
+                            <div class="form-group" style="margin-bottom:0;">
+                                <label class="form-label" asp-for="ExchangeUSD">1 USD =</label>
+                                <input class="form-input" type="number" step="0.01" min="0" asp-for="ExchangeUSD" />
+                            </div>
+                            <div class="form-group" style="margin-bottom:0;">
+                                <label class="form-label" asp-for="ExchangeEUR">1 EUR =</label>
+                                <input class="form-input" type="number" step="0.01" min="0" asp-for="ExchangeEUR" />
+                            </div>
+                            <div class="form-group" style="margin-bottom:0;">
+                                <label class="form-label" asp-for="ExchangeGBP">1 GBP =</label>
+                                <input class="form-input" type="number" step="0.01" min="0" asp-for="ExchangeGBP" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Credenciales del administrador -->
+                <div class="card sec-card">
+                    <div class="sec-head">
+                        <span class="ic" style="background:var(--purple);"><i class="fa-solid fa-user-shield"></i></span>
+                        <div><div class="t">Administrador del banco</div><div class="d">Cuenta inicial con acceso al banco</div></div>
+                    </div>
+                    <div class="card-body">
+                        <div class="grid-2">
+                            <div class="form-group">
+                                <label class="form-label" asp-for="AdminName">Nombre del administrador</label>
+                                <input class="form-input" asp-for="AdminName" placeholder="Ana Gómez" required />
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" asp-for="AdminEmail">Correo del administrador</label>
+                                <input class="form-input" type="email" asp-for="AdminEmail" id="f-email" placeholder="admin@banco-andes.com" required />
+                            </div>
+                        </div>
+                        <div class="form-group" style="margin-bottom:16px;">
+                            <label class="form-label" asp-for="AdminPassword">Contraseña inicial</label>
+                            <input class="form-input input-mono" type="password" asp-for="AdminPassword" minlength="8" placeholder="Mínimo 8 caracteres" required />
+                            <div class="form-hint">Se enviará al administrador en el correo de bienvenida.</div>
+                        </div>
+                        <label class="check">
+                            <input type="checkbox" asp-for="SendWelcomeEmail" />
+                            <span>Enviar correo de bienvenida con las credenciales al administrador</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Resumen -->
+            <aside class="fl-aside">
+                <div class="card">
+                    <div class="sec-head">
+                        <span class="ic" style="background:var(--green);"><i class="fa-solid fa-clipboard-check"></i></span>
+                        <div><div class="t">Resumen</div><div class="d">Revisa antes de crear</div></div>
+                    </div>
+                    <div class="card-body">
+                        <div class="sum-row"><span class="k">Banco</span><span class="v" id="s-name">—</span></div>
+                        <div class="sum-row"><span class="k">Identificador</span><span class="v mono" id="s-id">—</span></div>
+                        <div class="sum-row"><span class="k">Base de datos</span><span class="v mono" id="s-db" style="font-size:11.5px;">—</span></div>
+                        <div class="sum-row"><span class="k">Moneda</span><span class="v" id="s-cur">COP</span></div>
+                        <div class="sum-row"><span class="k">Comisión</span><span class="v" id="s-fee">1%</span></div>
+                        <div class="sum-row"><span class="k">Límite tx</span><span class="v" id="s-max">10.000.000</span></div>
+                        <div class="sum-row"><span class="k">Admin</span><span class="v" id="s-email" style="font-size:12px;">—</span></div>
+
+                        <button type="submit" class="btn btn-brand btn-lg btn-block" style="margin-top:20px;">
+                            <i class="fa-solid fa-building-circle-arrow-right"></i> Crear banco
+                        </button>
+                        <a class="btn btn-ghost btn-block" style="margin-top:8px;" href="@Url.Action("Index")">Cancelar</a>
+                    </div>
+                </div>
+                <div class="alert alert-info" style="margin-top:16px;">
+                    <i class="fa-solid fa-circle-info"></i>
+                    <span>Al crear el banco se aprovisiona su base de datos <span class="mono">tenant_{slug}</span> de forma aislada.</span>
+                </div>
+            </aside>
+        </div>
+    </form>
+</main>
+
+@section Scripts {
+<script>
+    (function () {
+        var name = document.getElementById('f-name');
+        var id = document.getElementById('f-id');
+        var cur = document.getElementById('f-currency');
+        var feetype = document.getElementById('f-feetype');
+        var feeval = document.getElementById('f-feeval');
+        var max = document.getElementById('f-max');
+        var email = document.getElementById('f-email');
+
+        function nf(v) { var n = Number(v || 0); return isNaN(n) ? '0' : n.toLocaleString('es-CO'); }
+        function dash(v) { return v && v.trim() ? v.trim() : '—'; }
+
+        function sync() {
+            var slug = (id.value || '').trim();
+            document.getElementById('s-name').textContent = dash(name.value);
+            document.getElementById('s-id').textContent = dash(slug);
+            var db = slug ? 'tenant_' + slug : '—';
+            document.getElementById('s-db').textContent = db;
+            document.getElementById('db-preview').textContent = slug ? 'tenant_' + slug : 'tenant_…';
+            document.getElementById('s-cur').textContent = cur.value;
+            var fv = feeval.value || '0';
+            document.getElementById('s-fee').textContent = feetype.value === 'percentage' ? fv + '%' : nf(fv) + ' (fija)';
+            document.getElementById('s-max').textContent = nf(max.value);
+            document.getElementById('s-email').textContent = dash(email.value);
+        }
+        [name, id, cur, feetype, feeval, max, email].forEach(function (el) {
+            el.addEventListener('input', sync); el.addEventListener('change', sync);
+        });
+        // auto-suggest slug from name
+        name.addEventListener('input', function () {
+            if (!id.dataset.touched) {
+                id.value = name.value.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+                    .replace(/[^a-z0-9\s-]/g, '').trim().replace(/\s+/g, '-').replace(/-+/g, '-');
+                sync();
+            }
+        });
+        id.addEventListener('input', function () { id.dataset.touched = '1'; });
+        sync();
+    })();
+</script>
+}

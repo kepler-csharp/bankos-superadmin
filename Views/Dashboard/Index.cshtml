@@ -1,0 +1,156 @@
+@{
+    ViewBag.Title = "Bancos";
+    var tenants = ViewBag.Tenants as List<TenantModel> ?? new List<TenantModel>();
+    var activeCount = (int)(ViewBag.ActiveCount ?? 0);
+    var inactiveCount = (int)(ViewBag.InactiveCount ?? 0);
+    var error = ViewBag.Error as string;
+
+    string Fee(TenantModel t) => t.TransferFeeType == "percentage" ? $"{t.TransferFeeValue}%" : $"{t.TransferFeeValue:N0} (fija)";
+}
+
+<main class="main">
+    <div class="page-header">
+        <div>
+            <div class="eyebrow">Panel SuperAdmin</div>
+            <h1 class="page-title"><i class="fa-solid fa-building-columns" style="color:var(--purple);"></i> Bancos</h1>
+            <p class="page-subtitle">Administra los bancos (tenants) de la plataforma BankOs.</p>
+        </div>
+        <a class="btn btn-brand btn-lg" href="@Url.Action("Create")"><i class="fa-solid fa-plus"></i> Crear banco</a>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success"><i class="fa-solid fa-circle-check"></i><span>@TempData["Success"]</span></div>
+    }
+    @if (TempData["Warning"] != null)
+    {
+        <div class="alert alert-warning"><i class="fa-solid fa-triangle-exclamation"></i><span>@TempData["Warning"]</span></div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-error"><i class="fa-solid fa-circle-exclamation"></i><span>@TempData["Error"]</span></div>
+    }
+    @if (!string.IsNullOrEmpty(error))
+    {
+        <div class="alert alert-error"><i class="fa-solid fa-circle-exclamation"></i><span>@error</span></div>
+    }
+
+    <div class="stat-grid">
+        <div class="stat v-purple">
+            <div class="stat-top">
+                <div>
+                    <div class="stat-value">@tenants.Count</div>
+                    <div class="stat-label">Bancos totales</div>
+                </div>
+                <div class="stat-icon" style="background:rgba(124,18,253,.1);color:var(--purple);"><i class="fa-solid fa-building-columns"></i></div>
+            </div>
+        </div>
+        <div class="stat v-green">
+            <div class="stat-top">
+                <div>
+                    <div class="stat-value">@activeCount</div>
+                    <div class="stat-label">Activos</div>
+                </div>
+                <div class="stat-icon" style="background:rgba(34,197,94,.12);color:var(--green);"><i class="fa-solid fa-circle-check"></i></div>
+            </div>
+        </div>
+        <div class="stat v-slate">
+            <div class="stat-top">
+                <div>
+                    <div class="stat-value">@inactiveCount</div>
+                    <div class="stat-label">Inactivos</div>
+                </div>
+                <div class="stat-icon" style="background:var(--s-100);color:var(--s-500);"><i class="fa-solid fa-circle-pause"></i></div>
+            </div>
+        </div>
+        <div class="stat v-blue">
+            <div class="stat-top">
+                <div>
+                    <div class="stat-value">@tenants.Select(t => t.Currency).Distinct().Count()</div>
+                    <div class="stat-label">Monedas en uso</div>
+                </div>
+                <div class="stat-icon" style="background:rgba(4,99,253,.1);color:var(--blue);"><i class="fa-solid fa-coins"></i></div>
+            </div>
+        </div>
+    </div>
+
+    @if (tenants.Count == 0)
+    {
+        <div class="card">
+            <div class="empty">
+                <img src="~/img/logo.png" alt="BankOs" />
+                <div class="empty-title">Aún no hay bancos</div>
+                <div class="empty-text">Crea el primer banco de la plataforma para comenzar.</div>
+                <a class="btn btn-brand btn-lg" style="margin-top:22px;" href="@Url.Action("Create")"><i class="fa-solid fa-plus"></i> Crear banco</a>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="tenant-grid">
+            @foreach (var t in tenants)
+            {
+                <div class="tenant @(t.IsActive ? "" : "inactive")">
+                    <div class="tenant-top">
+                        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;">
+                            <div>
+                                <div class="tenant-name">@t.Name</div>
+                                <div class="tenant-id">@t.DbName</div>
+                            </div>
+                            @if (t.IsActive)
+                            {
+                                <span class="badge badge-active"><i class="fa-solid fa-circle"></i> Activo</span>
+                            }
+                            else
+                            {
+                                <span class="badge badge-inactive"><i class="fa-solid fa-circle"></i> Inactivo</span>
+                            }
+                        </div>
+                    </div>
+                    <div class="tenant-body">
+                        <div class="row-kv"><span class="k">Moneda</span><span class="v">@t.Currency</span></div>
+                        <div class="row-kv"><span class="k">Límite por transacción</span><span class="v">@t.MaxTransactionAmount.ToString("N0")</span></div>
+                        <div class="row-kv"><span class="k">Comisión</span><span class="v">@Fee(t)</span></div>
+                        @if (t.CreatedAt.HasValue)
+                        {
+                            <div class="row-kv"><span class="k">Creado</span><span class="v">@t.CreatedAt.Value.ToString("dd/MM/yyyy")</span></div>
+                        }
+                    </div>
+                    <div class="tenant-foot">
+                        <a class="btn btn-secondary btn-sm" href="@Url.Action("Detail", new { id = t.Id })" title="Ver detalle"><i class="fa-solid fa-eye"></i> Detalle</a>
+                        <a class="btn btn-secondary btn-sm" href="@Url.Action("DbViewer", new { id = t.Id })" title="Ver base de datos"><i class="fa-solid fa-database"></i> BD</a>
+                        <a class="btn btn-secondary btn-sm" href="@Url.Action("Edit", new { id = t.Id })" title="Editar"><i class="fa-solid fa-pen"></i></a>
+                        <a class="btn btn-secondary btn-sm" href="@Url.Action("Certificate", new { id = t.Id })" title="Descargar certificado PDF"><i class="fa-solid fa-file-arrow-down"></i></a>
+
+                        <form method="post" action="@Url.Action("ToggleStatus")" style="display:inline;">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="id" value="@t.Id" />
+                            <input type="hidden" name="currentStatus" value="@t.Status" />
+                            <input type="hidden" name="adminEmail" value="@t.AdminEmail" />
+                            <input type="hidden" name="tenantName" value="@t.Name" />
+                            @if (t.IsActive)
+                            {
+                                <button type="submit" class="btn btn-warning btn-sm icon-btn" title="Desactivar"
+                                        onclick="return confirm('¿Desactivar el banco «@t.Name»? Dejará de operar.');"><i class="fa-solid fa-pause"></i></button>
+                            }
+                            else
+                            {
+                                <button type="submit" class="btn btn-success btn-sm icon-btn" title="Reactivar"
+                                        onclick="return confirm('¿Reactivar el banco «@t.Name»?');"><i class="fa-solid fa-play"></i></button>
+                            }
+                        </form>
+
+                        <form method="post" action="@Url.Action("Delete")" style="display:inline;margin-left:auto;">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="id" value="@t.Id" />
+                            <input type="hidden" name="adminEmail" value="@t.AdminEmail" />
+                            <input type="hidden" name="tenantName" value="@t.Name" />
+                            <button type="submit" class="btn btn-danger btn-sm icon-btn" title="Dar de baja"
+                                    onclick="return confirm('¿Dar de baja el banco «@t.Name»? Quedará desactivado y dejará de operar. Sus datos se conservan y puede reactivarse.');"><i class="fa-solid fa-ban"></i></button>
+                        </form>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</main>

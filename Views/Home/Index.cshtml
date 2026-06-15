@@ -1,0 +1,297 @@
+@{
+    ViewBag.Title = "Crea tu banco en la nube";
+    var bankCount = (int)(ViewBag.BankCount ?? 0);
+}
+
+@section Head {
+<style>
+    .lp-bar { position: sticky; top: 0; z-index: 50; backdrop-filter: saturate(180%) blur(12px);
+        background: rgba(255,255,255,.82); border-bottom: 1px solid var(--s-200); }
+    .lp-bar-in { max-width: 1180px; margin: 0 auto; padding: 14px 24px; display: flex; align-items: center; justify-content: space-between; }
+    .lp-brand { display: flex; align-items: center; gap: 11px; text-decoration: none; }
+    .lp-brand img { height: 38px; width: 38px; object-fit: contain; }
+    .lp-brand .wm { font-size: 22px; color: var(--navy); }
+    .lp-bar .actions { display: flex; align-items: center; gap: 10px; }
+
+    .lp-hero { position: relative; overflow: hidden; }
+    .lp-hero::before { content: ''; position: absolute; inset: 0;
+        background:
+            radial-gradient(720px 360px at 78% -10%, rgba(124,18,253,.14), transparent 60%),
+            radial-gradient(680px 380px at 8% 6%, rgba(4,99,253,.12), transparent 55%),
+            radial-gradient(560px 320px at 92% 60%, rgba(34,197,94,.10), transparent 60%); }
+    .lp-hero-in { position: relative; max-width: 1180px; margin: 0 auto; padding: 86px 24px 64px;
+        display: grid; grid-template-columns: 1.05fr .95fr; gap: 56px; align-items: center; }
+    .lp-eyebrow { display: inline-flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 700;
+        letter-spacing: .4px; color: var(--purple); background: #fff; border: 1px solid var(--s-200);
+        padding: 6px 13px; border-radius: 50px; box-shadow: var(--shadow-sm); margin-bottom: 22px; }
+    .lp-eyebrow .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--rail-soft); }
+    .lp-h1 { font-family: var(--display); font-weight: 800; font-size: 52px; line-height: 1.05;
+        letter-spacing: -1.5px; color: var(--ink); }
+    .lp-h1 .grad { background: var(--rail); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+    .lp-sub { font-size: 18px; line-height: 1.6; color: var(--s-600); margin-top: 22px; max-width: 540px; }
+    .lp-cta { display: flex; gap: 14px; margin-top: 34px; flex-wrap: wrap; }
+    .lp-trust { display: flex; align-items: center; gap: 22px; margin-top: 34px; flex-wrap: wrap; }
+    .lp-trust .item { display: flex; align-items: center; gap: 9px; font-size: 13.5px; color: var(--s-600); }
+    .lp-trust .item i { color: var(--green); }
+
+    /* hero visual — a stylized "new bank" card */
+    .lp-visual { position: relative; }
+    .lp-card { background: #fff; border-radius: 20px; border: 1px solid var(--s-200); box-shadow: var(--shadow-lg);
+        overflow: hidden; transform: rotate(-1.4deg); }
+    .lp-card .bar { height: 5px; background: var(--rail); }
+    .lp-card .pad { padding: 22px 24px; }
+    .lp-card .top { display: flex; align-items: center; gap: 13px; }
+    .lp-card .logo { width: 46px; height: 46px; border-radius: 13px; background: var(--rail);
+        display: grid; place-items: center; color: #fff; font-size: 20px; box-shadow: 0 8px 20px rgba(68,30,180,.3); }
+    .lp-card .nm { font-family: var(--display); font-weight: 700; font-size: 17px; color: var(--ink); }
+    .lp-card .id { font-family: var(--mono); font-size: 11.5px; color: var(--s-400); }
+    .lp-row { display: flex; align-items: center; justify-content: space-between; padding: 11px 0;
+        border-top: 1px dashed var(--s-200); font-size: 13.5px; }
+    .lp-row:first-of-type { border-top: none; }
+    .lp-row .k { color: var(--s-500); } .lp-row .v { font-weight: 700; color: var(--s-800); }
+    .lp-badge-ok { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 700;
+        padding: 4px 10px; border-radius: 50px; background: var(--ok-bg); color: #15803d; }
+    .lp-float { position: absolute; background: #fff; border: 1px solid var(--s-200); border-radius: 13px;
+        box-shadow: var(--shadow-md); padding: 12px 15px; display: flex; align-items: center; gap: 11px; }
+    .lp-float .ic { width: 36px; height: 36px; border-radius: 10px; display: grid; place-items: center; color: #fff; font-size: 15px; }
+    .lp-float .t { font-size: 12px; color: var(--s-500); } .lp-float .n { font-family: var(--display); font-weight: 800; font-size: 17px; color: var(--ink); line-height: 1; }
+    .lp-float.f1 { top: -22px; right: 6px; } .lp-float.f2 { bottom: -20px; left: -14px; }
+
+    /* sections */
+    .lp-sec { max-width: 1180px; margin: 0 auto; padding: 78px 24px; }
+    .lp-sec-head { text-align: center; max-width: 660px; margin: 0 auto 50px; }
+    .lp-kicker { font-size: 12px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; color: var(--purple); }
+    .lp-h2 { font-family: var(--display); font-weight: 800; font-size: 36px; letter-spacing: -.8px; color: var(--ink); margin-top: 12px; }
+    .lp-h2-sub { font-size: 16px; color: var(--s-500); margin-top: 14px; line-height: 1.6; }
+
+    .feat-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 22px; }
+    .feat { background: #fff; border: 1px solid var(--s-200); border-radius: var(--radius); padding: 26px;
+        box-shadow: var(--shadow-sm); transition: transform .2s, box-shadow .2s, border-color .2s; }
+    .feat:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); border-color: var(--s-300); }
+    .feat .ic { width: 50px; height: 50px; border-radius: 14px; display: grid; place-items: center; color: #fff; font-size: 21px; margin-bottom: 18px; }
+    .feat h3 { font-family: var(--display); font-weight: 700; font-size: 17px; color: var(--ink); margin-bottom: 9px; }
+    .feat p { font-size: 14px; color: var(--s-500); line-height: 1.6; }
+
+    .steps-band { background: linear-gradient(180deg, var(--navy) 0%, var(--navy-deep) 100%); position: relative; overflow: hidden; }
+    .steps-band::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 4px; background: var(--rail); }
+    .steps-band::before { content: ''; position: absolute; inset: 0;
+        background: radial-gradient(700px 320px at 85% 0%, rgba(124,18,253,.22), transparent 60%),
+                    radial-gradient(600px 300px at 5% 100%, rgba(0,168,232,.18), transparent 60%); }
+    .steps-in { position: relative; max-width: 1180px; margin: 0 auto; padding: 78px 24px; }
+    .steps-in .lp-kicker { color: #b7a8ff; }
+    .steps-in .lp-h2 { color: #fff; }
+    .steps-in .lp-h2-sub { color: rgba(255,255,255,.6); }
+    .steps { display: grid; grid-template-columns: repeat(4,1fr); gap: 20px; margin-top: 48px; }
+    .step { background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.12); border-radius: var(--radius); padding: 24px; position: relative; }
+    .step .num { font-family: var(--display); font-weight: 800; font-size: 14px; width: 34px; height: 34px; border-radius: 10px;
+        background: var(--rail); color: #fff; display: grid; place-items: center; margin-bottom: 16px; }
+    .step h4 { font-family: var(--display); color: #fff; font-size: 16px; font-weight: 700; margin-bottom: 8px; }
+    .step p { font-size: 13.5px; color: rgba(255,255,255,.62); line-height: 1.55; }
+
+    .cta-band { max-width: 1180px; margin: 0 auto 78px; padding: 0 24px; }
+    .cta-inner { background: var(--rail); border-radius: 24px; padding: 56px; text-align: center; position: relative; overflow: hidden;
+        box-shadow: 0 30px 70px rgba(68,30,180,.32); }
+    .cta-inner h2 { font-family: var(--display); font-weight: 800; font-size: 34px; color: #fff; letter-spacing: -.6px; }
+    .cta-inner p { color: rgba(255,255,255,.9); font-size: 16px; margin-top: 14px; }
+    .cta-inner .btn { margin-top: 28px; }
+    .btn-white { background: #fff; color: var(--navy); box-shadow: 0 10px 30px rgba(0,0,0,.18); }
+    .btn-white:hover { background: #f4f6ff; }
+
+    .lp-foot { border-top: 1px solid var(--s-200); background: #fff; }
+    .lp-foot-in { max-width: 1180px; margin: 0 auto; padding: 36px 24px; display: flex; align-items: center; justify-content: space-between; gap: 18px; flex-wrap: wrap; }
+    .lp-foot .brand { display: flex; align-items: center; gap: 10px; }
+    .lp-foot .brand img { height: 30px; width: 30px; object-fit: contain; }
+    .lp-foot .brand .wm { font-size: 17px; color: var(--navy); }
+    .lp-foot .links { display: flex; gap: 22px; flex-wrap: wrap; }
+    .lp-foot .links a { color: var(--s-500); font-size: 13.5px; text-decoration: none; }
+    .lp-foot .links a:hover { color: var(--purple); }
+    .lp-foot .copy { font-size: 12.5px; color: var(--s-400); width: 100%; padding-top: 10px; border-top: 1px solid var(--s-100); }
+
+    @@media (max-width: 940px) {
+        .lp-hero-in { grid-template-columns: 1fr; gap: 40px; padding-top: 52px; }
+        .lp-visual { max-width: 420px; }
+        .lp-h1 { font-size: 40px; }
+        .feat-grid { grid-template-columns: 1fr; }
+        .steps { grid-template-columns: 1fr 1fr; }
+    }
+    @@media (max-width: 560px) {
+        .steps { grid-template-columns: 1fr; }
+        .lp-h1 { font-size: 33px; }
+        .cta-inner { padding: 38px 22px; } .cta-inner h2 { font-size: 26px; }
+        .lp-brand .wm { display: none; }
+    }
+</style>
+}
+
+<header class="lp-bar">
+    <div class="lp-bar-in">
+        <a class="lp-brand" href="@Url.Action("Index", "Home")">
+            <img src="~/img/logo.png" alt="BankOs" />
+            <span class="wordmark wm">Bank<span class="o">O</span><span class="s">s</span></span>
+        </a>
+        <div class="actions">
+            <a class="btn btn-ghost" href="#funciones">Funciones</a>
+            <a class="btn btn-brand" href="@Url.Action("Login", "Auth")">
+                <i class="fa-solid fa-arrow-right-to-bracket"></i> Acceder al panel
+            </a>
+        </div>
+    </div>
+</header>
+
+<section class="lp-hero">
+    <div class="lp-hero-in">
+        <div>
+            <span class="lp-eyebrow"><span class="dot"></span> Plataforma bancaria multi-tenant</span>
+            <h1 class="lp-h1">Lanza un <span class="grad">banco completo</span> en la nube en minutos.</h1>
+            <p class="lp-sub">
+                BankOs te permite crear y administrar bancos digitales (tenants) desde un solo panel.
+                Cada banco nace con su propia base de datos aislada, su moneda, sus comisiones y su
+                administrador — listo para operar.
+            </p>
+            <div class="lp-cta">
+                <a class="btn btn-brand btn-lg" href="@Url.Action("Login", "Auth")">
+                    <i class="fa-solid fa-building-circle-arrow-right"></i> Crear mi primer banco
+                </a>
+                <a class="btn btn-secondary btn-lg" href="#como-funciona">
+                    <i class="fa-regular fa-circle-play"></i> Cómo funciona
+                </a>
+            </div>
+            <div class="lp-trust">
+                <div class="item"><i class="fa-solid fa-circle-check"></i> Base de datos aislada por banco</div>
+                <div class="item"><i class="fa-solid fa-circle-check"></i> Multi-moneda</div>
+                <div class="item"><i class="fa-solid fa-circle-check"></i> Certificado en PDF</div>
+            </div>
+        </div>
+
+        <div class="lp-visual">
+            <div class="lp-card">
+                <div class="bar"></div>
+                <div class="pad">
+                    <div class="top">
+                        <div class="logo"><i class="fa-solid fa-building-columns"></i></div>
+                        <div>
+                            <div class="nm">Banco de los Andes</div>
+                            <div class="id">tenant_banco-andes</div>
+                        </div>
+                        <span class="lp-badge-ok" style="margin-left:auto;"><i class="fa-solid fa-circle" style="font-size:6px;"></i> Activo</span>
+                    </div>
+                    <div style="margin-top:18px;">
+                        <div class="lp-row"><span class="k">Moneda</span><span class="v">COP $</span></div>
+                        <div class="lp-row"><span class="k">Límite por transacción</span><span class="v">$10.000.000</span></div>
+                        <div class="lp-row"><span class="k">Comisión de transferencia</span><span class="v">1%</span></div>
+                        <div class="lp-row"><span class="k">Base de datos</span><span class="v mono" style="font-size:12px;">tenant_banco-andes</span></div>
+                    </div>
+                </div>
+            </div>
+            <div class="lp-float f1">
+                <div class="ic" style="background:var(--green);"><i class="fa-solid fa-envelope-circle-check"></i></div>
+                <div><div class="t">Correo enviado</div><div class="n" style="font-size:13px;">Bienvenida ✓</div></div>
+            </div>
+            <div class="lp-float f2">
+                <div class="ic" style="background:var(--purple);"><i class="fa-solid fa-database"></i></div>
+                <div><div class="t">Tablas creadas</div><div class="n">12</div></div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="lp-sec" id="funciones">
+    <div class="lp-sec-head">
+        <div class="lp-kicker">Todo en un panel</div>
+        <h2 class="lp-h2">Administración bancaria, de extremo a extremo</h2>
+        <p class="lp-h2-sub">El panel SuperAdmin reúne todo lo necesario para operar una plataforma de múltiples bancos: creación, configuración, observabilidad y soporte.</p>
+    </div>
+    <div class="feat-grid">
+        <div class="feat">
+            <div class="ic" style="background:var(--rail);"><i class="fa-solid fa-building-circle-arrow-right"></i></div>
+            <h3>Creación de bancos (tenants)</h3>
+            <p>Da de alta un banco con su slug, moneda, límites y comisiones. Se aprovisiona con su propia base de datos aislada al instante.</p>
+        </div>
+        <div class="feat">
+            <div class="ic" style="background:var(--purple);"><i class="fa-solid fa-pen-to-square"></i></div>
+            <h3>Gestión completa (CRUD)</h3>
+            <p>Edita la configuración financiera, activa o desactiva bancos y elimínalos cuando ya no operen — con confirmación y trazabilidad.</p>
+        </div>
+        <div class="feat">
+            <div class="ic" style="background:var(--blue);"><i class="fa-solid fa-envelope-circle-check"></i></div>
+            <h3>Correos automáticos</h3>
+            <p>Notificaciones de bienvenida, cambios de configuración, activación/desactivación y baja se envían al administrador del banco.</p>
+        </div>
+        <div class="feat">
+            <div class="ic" style="background:var(--cyan);"><i class="fa-solid fa-database"></i></div>
+            <h3>Visor de base de datos</h3>
+            <p>Explora en modo solo lectura las tablas y registros de cada banco, directamente desde su base de datos dedicada.</p>
+        </div>
+        <div class="feat">
+            <div class="ic" style="background:var(--green);"><i class="fa-solid fa-robot"></i></div>
+            <h3>Asistente con IA</h3>
+            <p>Un chatbot que responde preguntas sobre tus bancos: estados, monedas, comisiones, límites y comparaciones, en lenguaje natural.</p>
+        </div>
+        <div class="feat">
+            <div class="ic" style="background:linear-gradient(135deg,var(--navy),var(--purple));"><i class="fa-solid fa-file-shield"></i></div>
+            <h3>Certificado en PDF</h3>
+            <p>Genera un certificado del banco y su configuración en PDF — producido por el propio panel para no saturar la API.</p>
+        </div>
+    </div>
+</section>
+
+<section class="steps-band" id="como-funciona">
+    <div class="steps-in">
+        <div class="lp-sec-head" style="margin-bottom:0;">
+            <div class="lp-kicker">Cómo funciona</div>
+            <h2 class="lp-h2">De cero a un banco operativo en 4 pasos</h2>
+            <p class="lp-h2-sub">Sin infraestructura que montar. El panel se encarga del aprovisionamiento.</p>
+        </div>
+        <div class="steps">
+            <div class="step">
+                <div class="num">1</div>
+                <h4>Accede al panel</h4>
+                <p>Inicia sesión con tu Master API Key. Es la llave del SuperAdmin que valida cada operación.</p>
+            </div>
+            <div class="step">
+                <div class="num">2</div>
+                <h4>Crea el banco</h4>
+                <p>Define nombre, identificador, moneda, comisiones y el administrador inicial del banco.</p>
+            </div>
+            <div class="step">
+                <div class="num">3</div>
+                <h4>Se aprovisiona solo</h4>
+                <p>BankOs crea la base de datos aislada del banco y envía el correo de bienvenida con las credenciales.</p>
+            </div>
+            <div class="step">
+                <div class="num">4</div>
+                <h4>Administra y certifica</h4>
+                <p>Supervisa métricas en vivo, consulta su base de datos y descarga el certificado en PDF cuando lo necesites.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="cta-band">
+    <div class="cta-inner">
+        <h2>¿Listo para crear tu primer banco?</h2>
+        <p>Una plataforma. Todos los bancos. Empieza ahora desde el panel SuperAdmin.</p>
+        <a class="btn btn-white btn-lg" href="@Url.Action("Login", "Auth")">
+            <i class="fa-solid fa-arrow-right-to-bracket"></i> Acceder al panel
+        </a>
+    </div>
+</section>
+
+<footer class="lp-foot">
+    <div class="lp-foot-in">
+        <div class="brand">
+            <img src="~/img/logo.png" alt="BankOs" />
+            <div>
+                <div class="wordmark wm">Bank<span class="o">O</span><span class="s">s</span></div>
+                <div style="font-size:12px;color:var(--s-400);margin-top:2px;">Una plataforma. Todos los bancos.</div>
+            </div>
+        </div>
+        <div class="links">
+            <a href="#funciones">Funciones</a>
+            <a href="#como-funciona">Cómo funciona</a>
+            <a href="@Url.Action("Privacy", "Home")">Política de privacidad</a>
+            <a href="@Url.Action("Login", "Auth")">Acceder</a>
+        </div>
+        <div class="copy">© @DateTime.Now.Year BankOs. Panel SuperAdmin para administración de bancos multi-tenant.</div>
+    </div>
+</footer>

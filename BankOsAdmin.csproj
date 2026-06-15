@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>BankOsAdmin</RootNamespace>
+    <AssemblyName>BankOsAdmin</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Direct PostgreSQL access for the per-tenant DB Viewer + tenant admin provisioning -->
+    <PackageReference Include="Npgsql" Version="9.0.4" />
+    <!-- Server-side PDF generation (certificates) so the API is never hit for documents -->
+    <PackageReference Include="QuestPDF" Version="2025.1.0" />
+    <!-- bcrypt hashing compatible with Laravel's Hash::check when creating the tenant admin user -->
+    <PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
+  </ItemGroup>
+
+</Project>

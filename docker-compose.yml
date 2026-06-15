@@ -1,0 +1,23 @@
+﻿# ─────────────────────────────────────────
+# API — ASP.NET Core 10 - PRODUCTION
+# ─────────────────────────────────────────
+version: '3.9'
+
+services:
+  admin-tickets:
+    container_name: BankOsAdmin
+
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+    image: ${DOCKER_USER}/BankOsAdmin:latest
+
+    ports:
+      - "5000:8080"
+
+    restart: unless-stopped
+    
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      BankOS__ApiBaseUrl: "https://bank-os.duckdns.org"
