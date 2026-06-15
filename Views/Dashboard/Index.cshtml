@@ -122,7 +122,7 @@
                         <a class="btn btn-secondary btn-sm" href="@Url.Action("Edit", new { id = t.Id })" title="Editar"><i class="fa-solid fa-pen"></i></a>
                         <a class="btn btn-secondary btn-sm" href="@Url.Action("Certificate", new { id = t.Id })" title="Descargar certificado PDF"><i class="fa-solid fa-file-arrow-down"></i></a>
 
-                        <form method="post" action="@Url.Action("ToggleStatus")" style="display:inline;">
+                        <form method="post" action="@Url.Action("ToggleStatus")" style="display:inline;margin-left:auto;">
                             @Html.AntiForgeryToken()
                             <input type="hidden" name="id" value="@t.Id" />
                             <input type="hidden" name="currentStatus" value="@t.Status" />
@@ -138,15 +138,6 @@
                                 <button type="submit" class="btn btn-success btn-sm icon-btn" title="Reactivar"
                                         onclick="return confirm('¿Reactivar el banco «@t.Name»?');"><i class="fa-solid fa-play"></i></button>
                             }
-                        </form>
-
-                        <form method="post" action="@Url.Action("Delete")" style="display:inline;margin-left:auto;">
-                            @Html.AntiForgeryToken()
-                            <input type="hidden" name="id" value="@t.Id" />
-                            <input type="hidden" name="adminEmail" value="@t.AdminEmail" />
-                            <input type="hidden" name="tenantName" value="@t.Name" />
-                            <button type="submit" class="btn btn-danger btn-sm icon-btn" title="Dar de baja"
-                                    onclick="return confirm('¿Dar de baja el banco «@t.Name»? Quedará desactivado y dejará de operar. Sus datos se conservan y puede reactivarse.');"><i class="fa-solid fa-ban"></i></button>
                         </form>
                     </div>
                 </div>

@@ -88,7 +88,7 @@ public class PdfService
                     });
 
                     left.Item().PaddingTop(26).Text("CERTIFICADO DE TENANT Y BANCO")
-                        .FontColor("#eaf1ff").FontSize(19).Bold().LetterSpacing(0.3f);
+                        .FontColor("#eaf1ff").FontSize(19).Bold().LetterSpacing(0.04f);
                     left.Item().PaddingTop(3).Text("Documento oficial de registro en el ecosistema BankOs")
                         .FontColor("#9bb4ff").FontSize(11);
                 });
@@ -99,8 +99,8 @@ public class PdfService
                         .Background("#101f5e").Padding(12).Column(s =>
                     {
                         s.Item().AlignCenter().Text("✓").FontColor("#4ade80").FontSize(30).Bold();
-                        s.Item().AlignCenter().PaddingTop(2).Text("VERIFICADO").FontColor("#ffffff").FontSize(8).Bold().LetterSpacing(1.5f);
-                        s.Item().AlignCenter().Text("BankOs").FontColor("#9bb4ff").FontSize(7).LetterSpacing(2);
+                        s.Item().AlignCenter().PaddingTop(2).Text("VERIFICADO").FontColor("#ffffff").FontSize(8).Bold().LetterSpacing(0.1f);
+                        s.Item().AlignCenter().Text("BankOs").FontColor("#9bb4ff").FontSize(7).LetterSpacing(0.12f);
                     });
                 });
             });
@@ -264,7 +264,7 @@ public class PdfService
             {
                 row.RelativeItem().Column(s =>
                 {
-                    s.Item().Text("SELLO DIGITAL").FontSize(9).Bold().FontColor(Slate).LetterSpacing(1);
+                    s.Item().Text("SELLO DIGITAL").FontSize(9).Bold().FontColor(Slate).LetterSpacing(0.06f);
                     s.Item().PaddingTop(4).Text(reference).FontFamily("Courier").FontSize(10).FontColor(Purple);
                     s.Item().PaddingTop(4).Text("Documento generado electrónicamente. Su autenticidad puede verificarse con la referencia anterior en el panel SuperAdmin de BankOs.")
                         .FontSize(8.5f).FontColor(Muted).LineHeight(1.4f);
@@ -287,7 +287,7 @@ public class PdfService
     private void Section(ColumnDescriptor col, string title)
     {
         col.Item().PaddingTop(26).Text(title.ToUpperInvariant())
-            .FontSize(10).Bold().FontColor(Navy).LetterSpacing(1.3f);
+            .FontSize(10).Bold().FontColor(Navy).LetterSpacing(0.06f);
         col.Item().PaddingTop(6).Height(1).Background(Line);
     }
 
@@ -295,7 +295,7 @@ public class PdfService
     {
         col.Item().PaddingBottom(13).Column(item =>
         {
-            item.Item().Text(label).FontSize(8.5f).Bold().FontColor(Muted).LetterSpacing(0.4f);
+            item.Item().Text(label).FontSize(8.5f).Bold().FontColor(Muted).LetterSpacing(0.03f);
             var t = item.Item().PaddingTop(2).Text(value).FontSize(12).FontColor(color ?? Ink);
             if (mono) t.FontFamily("Courier");
         });

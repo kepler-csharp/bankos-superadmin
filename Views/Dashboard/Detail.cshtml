@@ -193,15 +193,6 @@
                                     onclick="return confirm('¿Reactivar el banco «@Model.Name»?');"><i class="fa-solid fa-play"></i> Reactivar banco</button>
                         }
                     </form>
-
-                    <form method="post" action="@Url.Action("Delete")">
-                        @Html.AntiForgeryToken()
-                        <input type="hidden" name="id" value="@Model.Id" />
-                        <input type="hidden" name="adminEmail" value="@Model.AdminEmail" />
-                        <input type="hidden" name="tenantName" value="@Model.Name" />
-                        <button type="submit" class="btn btn-danger btn-block"
-                                onclick="return confirm('¿Dar de baja el banco «@Model.Name»? Quedará desactivado y dejará de operar. Sus datos se conservan y puede reactivarse.');"><i class="fa-solid fa-ban"></i> Dar de baja</button>
-                    </form>
                 </div>
             </div>
         </aside>

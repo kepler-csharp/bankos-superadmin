@@ -94,14 +94,14 @@ public class DashboardController : Controller
         // 3) Register the tenant subdomain in the central domains table (cosmetic, best-effort).
         await _db.CreateDomainAsync(vm.Id, domain);
 
-        // 4) Lifecycle emails — sent from this MVC app, never from the API.
-        if (vm.SendWelcomeEmail && !string.IsNullOrWhiteSpace(vm.AdminEmail))
+        // 4) Notify the tenant administrator — always, sent from this MVC app (never from the API).
+        if (!string.IsNullOrWhiteSpace(vm.AdminEmail))
         {
             _ = _email.SendTenantCreatedAsync(
                 vm.AdminEmail, vm.Name, vm.Id, domain, vm.AdminEmail, vm.AdminPassword,
                 vm.Currency, vm.MaxTransactionAmount, vm.TransferFeeType, vm.TransferFeeValue);
 
-            TempData["Success"] = $"Banco «{vm.Name}» creado. Se enviaron los correos de bienvenida a {vm.AdminEmail}.";
+            TempData["Success"] = $"Banco «{vm.Name}» creado. Se notificó al administrador en {vm.AdminEmail}.";
         }
         else
         {
@@ -177,8 +177,8 @@ public class DashboardController : Controller
             vm.Id, vm.Currency, vm.MaxTransactionAmount, vm.TransferFeeType, vm.TransferFeeValue,
             rates, string.IsNullOrWhiteSpace(vm.WebhookUrl) ? null : vm.WebhookUrl);
 
-        // 3) Build the change diff (mirrors the Laravel notification) and email the admin.
-        if (oldTenant != null && vm.NotifyByEmail)
+        // 3) Build the change diff (mirrors the Laravel notification) and notify the admin — always.
+        if (oldTenant != null)
         {
             var changes = new Dictionary<string, (string, string)>();
             if (oldTenant.Name != vm.Name) changes["Nombre"] = (oldTenant.Name, vm.Name);

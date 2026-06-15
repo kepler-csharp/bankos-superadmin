@@ -136,15 +136,15 @@
                                 <input class="form-input" type="email" asp-for="AdminEmail" id="f-email" placeholder="admin@banco-andes.com" required />
                             </div>
                         </div>
-                        <div class="form-group" style="margin-bottom:16px;">
+                        <div class="form-group" style="margin-bottom:0;">
                             <label class="form-label" asp-for="AdminPassword">Contraseña inicial</label>
                             <input class="form-input input-mono" type="password" asp-for="AdminPassword" minlength="8" placeholder="Mínimo 8 caracteres" required />
                             <div class="form-hint">Se enviará al administrador en el correo de bienvenida.</div>
                         </div>
-                        <label class="check">
-                            <input type="checkbox" asp-for="SendWelcomeEmail" />
-                            <span>Enviar correo de bienvenida con las credenciales al administrador</span>
-                        </label>
+                        <div class="alert alert-info" style="margin:16px 0 0;">
+                            <i class="fa-solid fa-envelope-circle-check"></i>
+                            <span>Al crear el banco se notificará automáticamente al administrador por correo con sus credenciales de acceso.</span>
+                        </div>
                     </div>
                 </div>
             </div>
