@@ -11,7 +11,7 @@ services:
       context: .
       dockerfile: Dockerfile
 
-    image: ${DOCKER_USER}/BankOsAdmin:latest
+    image: ${DOCKER_USER}/bankossuperadmin:latest
 
     ports:
       - "5000:8080"
@@ -20,4 +20,27 @@ services:
     
     environment:
       ASPNETCORE_ENVIRONMENT: Production
-      BankOS__ApiBaseUrl: "https://bank-os.duckdns.org"
+      BankOS__ApiBaseUrl: ${API_BASE}
+      Email__Host: ${SMTP_HOST}
+      Email__Port: ${SMTP_PORT}
+      Email__Username: ${SMTP_USERNAME}
+      Email__Password: ${SMTP_PASSWORD}
+      Email__From: ${SMTP_ADDRESS}
+      Email__FromName: "BankOs SuperAdmin"
+      Email__Enabled: true
+      OpenAI__ApiKey: ${OPENAI_API_KEY}
+      OpenAI__Model: gpt-4o-mini
+      Database__Host: ${DB_HOST}
+      Database__Port: ${DB_PORT}
+      Database__User: ${DB_USER}
+      Database__Password: ${DB_PASSWORD}
+      Database__CentralDb: ${DB_CENTRAL}
+      Database__TenantDbPrefix: ${DB_TENANT_PREFIX}
+      Database__MDomainSuffix: ${DB_DOMAIN_SUFFIX}
+      Branding__ProductName: "BankOs"
+      Branding__Tagline: "Una plataforma. Todos los bancos."
+      Branding__SupportEmail: "soporte@bankos.com"
+      Branding__PortalUrl: ${API_BASE}
+
+
+

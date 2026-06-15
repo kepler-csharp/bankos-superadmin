@@ -22,7 +22,7 @@ WORKDIR /app
 COPY --from=build /out .
 
 # Exponer puerto
-EXPOSE 80
+EXPOSE 8080
 
 # Comando de inicio
 ENTRYPOINT ["dotnet", "BankOsAdmin.dll"]
