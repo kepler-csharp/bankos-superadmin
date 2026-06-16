@@ -24,6 +24,7 @@ public class EmailService
     private string FromName => _config["Email:FromName"] ?? "BankOs";
     private string Portal => _config["Branding:PortalUrl"] ?? "http://bank-os.duckdns.org:8080";
     private string Support => _config["Branding:SupportEmail"] ?? "soporte@bankos.com";
+    private string PortalAdmin => _config["Branding:PortalAdmin"] ?? "https://bank-os-admin.duckdns.org";
 
     private SmtpClient BuildClient() => new(_config["Email:Host"] ?? "smtp.gmail.com")
     {
@@ -184,7 +185,7 @@ public class EmailService
                   {{inner}}
                   <hr style="border:none;border-top:1px solid #e8edf6;margin:28px 0 16px">
                   <p style="color:#94a3b8;font-size:11px;line-height:1.6;margin:0">
-                    BankOs · Sistema Bancario Multi-Tenant · <a href="{{Portal}}" style="color:#0463fd;text-decoration:none">Abrir portal</a><br>
+                    BankOs · Sistema Bancario Multi-Tenant · <a href="{{PortalAdmin}}" style="color:#0463fd;text-decoration:none">Abrir portal</a><br>
                     Este es un mensaje automático. ¿Dudas? Escríbenos a <a href="mailto:{{Support}}" style="color:#0463fd;text-decoration:none">{{Support}}</a>.
                   </p>
                 </td></tr>

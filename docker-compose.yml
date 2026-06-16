@@ -41,6 +41,7 @@ services:
       Branding__Tagline: "Una plataforma. Todos los bancos."
       Branding__SupportEmail: "soporte@bankos.com"
       Branding__PortalUrl: ${API_BASE}
+      Branding__PortalAdmin: "https://bank-os-admin.duckdns.org/"
 
 
 
